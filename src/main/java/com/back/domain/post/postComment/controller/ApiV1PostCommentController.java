@@ -65,25 +65,24 @@ public class ApiV1PostCommentController {
         );
     }
 
-    record PostCommentResBody(
+    record PostCommentModifyReqBody(
             @NotBlank
-            @Size(min = 2, max = 1000)
+            @Size(min = 2, max = 100)
             String content
     ) {}
 
     @PutMapping("/{id}")
     @Transactional
-    public RsData<PostCommentDto> modify(
+    public RsData<Void> modify(
             @PathVariable int postId,
             @PathVariable int id,
-            @Valid @RequestBody PostCommentResBody form // 이걸로 안될 듯? 레코드 새로 만들어서 받거나.
+            @Valid @RequestBody PostCommentModifyReqBody reqBody // 이걸로 안될 듯? 레코드 새로 만들어서 받거나.
     ) {
         PostComment postComment = postService.findById(postId).get().findCommentById(id).get();
-        postComment.modify(form.content());
+        postService.modifyComment(postComment, reqBody.content());
         return new RsData<>(
-            "200-2",
-                "%d번 댓글이 수정되었습니다.".formatted(id),
-                new PostCommentDto(postComment)
+            "200-1",
+                "%d번 댓글이 수정되었습니다.".formatted(postComment.getId())
             );
     }
 }
