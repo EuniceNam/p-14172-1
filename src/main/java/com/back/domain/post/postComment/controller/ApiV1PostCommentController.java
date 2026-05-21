@@ -5,6 +5,9 @@ import com.back.domain.post.post.service.PostService;
 import com.back.domain.post.postComment.dto.PostCommentDto;
 import com.back.domain.post.postComment.entity.PostComment;
 import com.back.global.rsData.RsData;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -60,5 +63,27 @@ public class ApiV1PostCommentController {
                 "200-1",
                 "%d번 댓글이 삭제되었습니다.".formatted(id)
         );
+    }
+
+    record PostCommentResBody(
+            @NotBlank
+            @Size(min = 2, max = 1000)
+            String content
+    ) {}
+
+    @PutMapping("/{id}")
+    @Transactional
+    public RsData<PostCommentDto> modify(
+            @PathVariable int postId,
+            @PathVariable int id,
+            @Valid @RequestBody PostCommentResBody form // 이걸로 안될 듯? 레코드 새로 만들어서 받거나.
+    ) {
+        PostComment postComment = postService.findById(postId).get().findCommentById(id).get();
+        postComment.modify(form.content());
+        return new RsData<>(
+            "200-2",
+                "%d번 댓글이 수정되었습니다.".formatted(id),
+                new PostCommentDto(postComment)
+            );
     }
 }
