@@ -16,6 +16,17 @@ import java.util.List;
 public class ApiV1PostController {
     private final PostService postService;
 
+    @PostMapping
+    @Transactional
+    public RsData<PostDto> write(String title, String content) {
+        Post newPost = postService.write(title,content);
+        return new RsData<>(
+                "200-1",
+                "%d번 글이 생성되었습니다.".formatted(newPost.getId()),
+                new PostDto(newPost)
+        );
+    }
+
     @GetMapping
     @Transactional(readOnly = true)
     public List<PostDto> getItems() {
