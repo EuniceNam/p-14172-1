@@ -31,7 +31,7 @@ public class ApiV1PostControllerTest {
 
     // 회원가입 테스트
     @Test
-    @DisplayName("글 쓰기")
+    @DisplayName("글 작성")
     void t1() throws Exception {
         // 회원가입 요청을 보냅니다.
         ResultActions resultActions = mvc
@@ -65,9 +65,10 @@ public class ApiV1PostControllerTest {
     @Test
     @DisplayName("글 수정")
     void t2() throws Exception {
+        int id = 1;
         ResultActions resultActions = mvc
                 .perform(
-                        put("/api/v1/posts/1")
+                        put("/api/v1/posts/" + id)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("""
                                         {
@@ -78,8 +79,11 @@ public class ApiV1PostControllerTest {
                 )
                 .andDo(print());
 
-        // 200 OK 상태코드 검증
         resultActions
-                .andExpect(status().isOk());
+                .andExpect(handler().handlerType(ApiV1PostController.class))
+                .andExpect(handler().methodName("modify"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.resultCode").value("200-1"))
+                .andExpect(jsonPath("$.msg").value("%d번 글이 수정되었습니다.".formatted(id)));
     }
 }
